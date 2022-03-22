@@ -36,9 +36,57 @@
 }
 
 body {
-    background: var(--gray-900);
+    background: rgb(37, 37, 37);
     font-family: 'Source Sans Pro', sans-serif;
     margin: 0;
     padding: 0;
 }
 
+
+.panel {
+    background: var(--gray-900);
+    padding: 10px;
+    margin: 10px;
+}
+
+h1, h2, h3 {
+    color: var(--gray-300);
+    padding: 0;
+    margin: 0;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+h4, h5, h6 {
+    color: var(--gray-400);
+    padding: 0;
+    margin: 0;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+p {
+    color: var(--gray-500);
+    padding: 0;
+    margin: 0;
+}
+
+.map-container {
+    background: none;
+    padding: 10px;
+    margin: 10px;
+    border: 1px solid var(--gray-900);
+    height: 720px;
+    overflow: hidden;
+}
+
+.map-container canvas {
+    image-rendering: pixelated;
+  }
+
+.fa-btn {
+    background: none;
+    outline: none;
+    border: none;
+    color: var(--gray-500);
+}
