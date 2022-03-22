@@ -25,8 +25,8 @@ import { getCellFromCoords } from './utils';
 
   function handleMouseMove(event) {
     let rect = map.canvas.getBoundingClientRect()
-    coords.x = Math.floor(event.clientX - rect.left)
-    coords.y = Math.floor(event.clientY - rect.top)
+    coords.x = Math.floor((event.clientX - rect.left) / map.renderInfo.scale) 
+    coords.y = Math.floor((event.clientY - rect.top) / map.renderInfo.scale) 
     coords.cell = getCellFromCoords(coords.x, coords.y, map.tileSize)
   }
 
