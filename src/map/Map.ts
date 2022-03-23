@@ -1,5 +1,10 @@
+import { getCellFromCoords } from "../utils"
 import KeyPressListener from "../listeners/KeyPressListener"
+import Layer from "./Layer"
+import MapCoordInfo from "./MapCoordInfo"
 import MapRenderInfo from "./MapRenderInfo"
+
+import Event from '../assets/Event.png'
 
 export default class Map {
     // ID of the map, can be used if we want map tabs
@@ -24,10 +29,19 @@ export default class Map {
     focused: boolean
 
     // Map Render Info
-    renderInfo: any
+    renderInfo: MapRenderInfo
+
+    // Map coord info
+    coordInfo: MapCoordInfo
 
     // last clicked check
     lastClicked: boolean
+
+    // Layers
+    layers: any
+
+    // show grid toggle
+    isGridShown: boolean
 
     constructor(config) {
         this.id = 1 // TODO
@@ -42,6 +56,13 @@ export default class Map {
             top: 5,
             left: 30,
         })
+        this.coordInfo = new MapCoordInfo({
+            map: this
+        })
+
+        this.layers = config.layers || []
+
+        this.isGridShown = true
 
         this.canvas.width = this.tileSize * this.rows
         this.canvas.height = this.tileSize * this.rows
@@ -50,7 +71,7 @@ export default class Map {
     }
 
     renderGrid() {
-        this.ctx.lineWidth = 0.2
+        this.ctx.lineWidth = 0.1
         this.ctx.strokeStyle = "rgb(116, 116, 116)"
 
         for (let i = 1; i < this.rows; i++) {
@@ -70,7 +91,15 @@ export default class Map {
         }
     }
 
-    registerGridMovement() {
+    getActiveLayer() {
+        return this.layers.find(l => l.active === true)
+    }
+
+    toggleGrid() {
+        this.isGridShown = !this.isGridShown
+    }
+
+    registerGridMovement(): void {
         new KeyPressListener("KeyW", () => {
             this.focused && this.renderInfo.decreaseTop()
         })
@@ -85,7 +114,7 @@ export default class Map {
         })
     }
 
-    registerLastClickedEvent() {
+    registerLastClickedEvent(): void {
         let el = this.element
         let focused = this.focused
         document.addEventListener('click', function(e) {
@@ -95,12 +124,52 @@ export default class Map {
         })
     }
 
+    registerDrawEvent(): void {
+        this.canvas.addEventListener('click', event => {
+            let cell = getCellFromCoords(this.coordInfo.x, this.coordInfo.y, this.tileSize)
+            const tile = this.getActiveLayer().getTileFromCell(cell[0], cell[1])
+            tile.image.src = Event
+            tile.draw(this.ctx, cell[0] * this.tileSize, cell[1] * this.tileSize)
+        })
+    }
+
+    drawLoop() {
+        const step = () => {
+            // clear rect
+            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
+
+            // render grid
+            this.isGridShown && this.renderGrid()
+
+            // get active layer & draw
+            let activeLayer = this.getActiveLayer()
+            activeLayer.draw()
+
+            requestAnimationFrame(() => {
+                step()
+            })
+        }
+
+        step()
+    }
+
     init() {
         // Grab render info then render grid
         this.renderInfo.init()
         this.renderGrid()
 
+        this.coordInfo.init()
+
+        this.layers[0] = new Layer({
+            map: this,
+            active: true,
+        })
+        
+
+        this.drawLoop()
+
         this.registerGridMovement()
         this.registerLastClickedEvent()
+        this.registerDrawEvent()
     }
 }

@@ -1,12 +1,12 @@
 <script lang="ts">
   import { onMount } from 'svelte'
   import Map from './map/Map'
-  import Client from './client/Client';
-
+  import { getCellFromCoords } from './utils';
 
   import Header from './components/Header.svelte';
+  import Layer from './components/Layer.svelte';
+
   import './styles/global.css';
-import { getCellFromCoords } from './utils';
 
   let root;
   let map;
@@ -49,6 +49,11 @@ import { getCellFromCoords } from './utils';
           <i class="fas fa-magnifying-glass-minus"></i>
         </button>
       </div>
+      <div class="position-absolute" style="bottom: 5px; right: 70px;">
+        <button class="fa-btn" on:click={map.toggleGrid()}>
+          <i class="fas fa-border-none"></i>
+        </button>
+      </div>
       <div class="position-absolute" style="bottom: 5px; left: 5px;">
         <p>Coords: <span>{ coords.x }x{ coords.y }</span> </p>
         <p>Cell: <span>{ coords.cell }</span></p>
@@ -62,6 +67,7 @@ import { getCellFromCoords } from './utils';
       </div>
       <div class="panel">
         <h6>Layers</h6>
+        <Layer name={0} />
       </div>
     </div>
   </div>
