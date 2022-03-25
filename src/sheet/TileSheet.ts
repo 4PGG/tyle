@@ -27,8 +27,10 @@ export default class TileSheet extends Canvas {
         this.image.src = config.src || DefaultTilesheet
         this.image.onload = () => {
             this.isLoaded = true
-            this.canvas.width = this.image.width
-            this.canvas.height = this.image.height
+            this.canvas.style.width = '100%'
+            this.canvas.style.height = 'auto'
+            this.canvas.width = this.canvas.offsetWidth
+            this.canvas.height = this.canvas.offsetHeight
         }
 
         this.active = config.active || false
@@ -52,6 +54,7 @@ export default class TileSheet extends Canvas {
             this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
 
             this.draw(this.ctx)
+            this.drawActiveTile()
 
             requestAnimationFrame(() => {
                 step()
@@ -61,14 +64,66 @@ export default class TileSheet extends Canvas {
         step()
     }
 
-    registerSelectTileEvent(): void {
-        this.onCanvasClick((event) => {
-            let cell = getCellFromCoords(this.coord.x, this.coord.y, this.tileSize)
-            this.activeCell.cell = cell
-            console.log(this.activeCell.cell)
-        })
+    setActiveTile(): void {
+        this.activeCell.cell = getCellFromCoords(this.coord.x, this.coord.y, this.tileSize)
     }
 
+    drawActiveTile(): void {
+        // Draw the selected tile indicator...I probably overcomplicated the hell out of this...
+        let pathSequence = [
+            {
+                x: this.activeCell.cell[0] * this.tileSize,
+                y: this.activeCell.cell[1] * this.tileSize
+            },
+            {
+                x: this.activeCell.cell[0] * this.tileSize + this.tileSize,
+                y: this.activeCell.cell[1] * this.tileSize
+            },
+            {
+                x: this.activeCell.cell[0] * this.tileSize + this.tileSize,
+                y: this.activeCell.cell[1] * this.tileSize + this.tileSize
+            },
+            {
+                x: this.activeCell.cell[0] * this.tileSize,
+                y: this.activeCell.cell[1] * this.tileSize + this.tileSize
+            }
+        ]
+
+        for (let i = 0; i < pathSequence.length; i++) {
+            let startingPosition = i !== pathSequence.length - 1 ? pathSequence[i] : pathSequence[i];
+            let endingPosition = i !== pathSequence.length - 1 ? pathSequence[i + 1] : pathSequence[0];
+            switch(i) {
+                case pathSequence.length - 1:
+                    startingPosition = pathSequence[i]
+                    endingPosition = pathSequence[0]
+                    break
+                default:
+                    startingPosition = pathSequence[i]
+                    endingPosition = pathSequence[i + 1]        
+                    break
+            }
+
+            console.log(startingPosition)
+
+            this.ctx.lineWidth = 1
+            this.ctx.strokeStyle = "white"
+
+            this.ctx.beginPath()
+            this.ctx.moveTo(startingPosition.x, startingPosition.y)
+            this.ctx.lineTo(endingPosition.x, endingPosition.y)
+            this.ctx.closePath()
+            this.ctx.stroke()
+        }
+    }
+
+    registerSelectTileEvent(): void {
+        this.onCanvasClick((event) => {
+            this.setActiveTile()
+
+            this.drawActiveTile()
+        })
+    }
+    
     init(): void {
         this.draw(this.ctx)
         this.drawLoop()

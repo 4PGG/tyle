@@ -86,7 +86,7 @@ p {
 
 .tilesheet-container {
     max-height: 400px;
-    overflow: hidden;
+    overflow: scroll;
 }
 
 .tilesheet-container canvas {

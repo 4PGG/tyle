@@ -41,7 +41,7 @@
   <div class="row m-0 p-0 g-0">
     <div class="col-9 map-container position-relative">
       <h6 class="position-absolute">Map</h6>
-      <canvas on:mousemove={handleMouseMove} class="map-canvas position-absolute" width="0" height="0"></canvas>
+      <canvas on:mousemove={handleMouseMove} class="map-canvas position-absolute" width="100%" height="auto"></canvas>
       <div class="position-absolute" style="bottom: 5px; right: 5px;">
         <button class="fa-btn" on:click={map.render.increaseScale()}>
           <i class="fas fa-magnifying-glass-plus"></i>
