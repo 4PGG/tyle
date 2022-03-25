@@ -19,14 +19,17 @@
   onMount(() => {
     map = new Map({
       element: root.querySelector(".map-container"),
+      canvas: root.querySelector(".map-canvas"),
       rows: 20,
     })
+
+    console.log(map)
   })
 
   function handleMouseMove(event) {
     let rect = map.canvas.getBoundingClientRect()
-    coords.x = Math.floor((event.clientX - rect.left) / map.renderInfo.scale) 
-    coords.y = Math.floor((event.clientY - rect.top) / map.renderInfo.scale) 
+    coords.x = Math.floor((event.clientX - rect.left) / map.render.scale) 
+    coords.y = Math.floor((event.clientY - rect.top) / map.render.scale) 
     coords.cell = getCellFromCoords(coords.x, coords.y, map.tileSize)
   }
 
@@ -38,14 +41,14 @@
   <div class="row m-0 p-0 g-0">
     <div class="col-9 map-container position-relative">
       <h6 class="position-absolute">Map</h6>
-      <canvas on:mousemove={handleMouseMove} class="map-canvas justify-content-center position-absolute" width="0" height="0"></canvas>
+      <canvas on:mousemove={handleMouseMove} class="map-canvas position-absolute" width="0" height="0"></canvas>
       <div class="position-absolute" style="bottom: 5px; right: 5px;">
-        <button class="fa-btn" on:click={map.renderInfo.increaseScale()}>
+        <button class="fa-btn" on:click={map.render.increaseScale()}>
           <i class="fas fa-magnifying-glass-plus"></i>
         </button>
       </div>
       <div class="position-absolute" style="bottom: 5px; right: 35px;">
-        <button class="fa-btn" on:click={map.renderInfo.decreaseScale()}>
+        <button class="fa-btn" on:click={map.render.decreaseScale()}>
           <i class="fas fa-magnifying-glass-minus"></i>
         </button>
       </div>
@@ -61,9 +64,13 @@
     </div>
     <div class="col">
       <div class="panel">
-        <h6>
+        <h6 class="mb-3">
           Sheet
         </h6>
+        <div class="tilesheet-container">
+          <canvas class="tilesheet-canvas"></canvas>
+
+        </div>
       </div>
       <div class="panel">
         <h6>Layers</h6>
