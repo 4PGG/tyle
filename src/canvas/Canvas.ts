@@ -24,4 +24,16 @@ export default class Canvas {
             callback(event)
         })
     }
+
+    onCanvasMouseDown(callback: (e) => void): void {
+        this.canvas.addEventListener('mousedown', event => {
+            callback(event)
+        })
+    }
+
+    onCanvasMouseUp(callback: (e) => void): void {
+        this.canvas.addEventListener('mouseup', event => {
+            callback(event)
+        })
+    }
 }

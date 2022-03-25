@@ -1,5 +1,4 @@
 import { getCellFromCoords } from "../utils"
-import KeyPressListener from "../listeners/KeyPressListener"
 import Canvas from "../canvas/Canvas"
 import Layer from "./Layer"
 import TileSheet from "../sheet/TileSheet"
@@ -34,6 +33,9 @@ export default class Map extends Canvas {
     // tilesheets
     tilesheets: TileSheet[]
 
+    // Mouse Interval (used in place for non-existing while mouse down event)
+    mouseInterval: any
+
     constructor(config) {
         super(config)
 
@@ -57,6 +59,8 @@ export default class Map extends Canvas {
 
         this.canvas.width = this.tileSize * this.rows
         this.canvas.height = this.tileSize * this.rows
+
+        this.mouseInterval = null
 
         this.init()
     }
@@ -95,43 +99,56 @@ export default class Map extends Canvas {
     }
 
     registerGridMovement(): void {
-        new KeyPressListener("KeyW", () => {
-            this.focused && this.render.decreaseTop()
+        document.addEventListener("keydown", e => {
+            switch(e.code) {
+                case "KeyW":
+                    this.focused && this.render.decreaseTop()
+                    break
+                case "KeyA":
+                    this.focused && this.render.decreaseLeft()
+                    break
+                case "KeyS":
+                    this.focused && this.render.increaseTop()
+                    break
+                case "KeyD":
+                    this.focused && this.render.increaseLeft()
+                    break
+            }
         })
-        new KeyPressListener("KeyA", () => {
-            this.focused && this.render.decreaseLeft()
-        })
-        new KeyPressListener("KeyS", () => {
-            this.focused && this.render.increaseTop()
-        })
-        new KeyPressListener("KeyD", () => {
-            this.focused && this.render.increaseLeft()
-        })
+
     }
 
     registerLastClickedEvent(): void {
         let el = this.element
         let focused = this.focused
-        document.addEventListener('click', function(e) {
-            e.target == el ? 
-                focused = true : 
+        document.addEventListener('click', e => {
+            if(e.target == el) {
+                focused = true
+            } else {
                 focused = false
+                clearInterval(this.mouseInterval)
+            } 
         })
     }
 
     registerDrawEvent(): void {
-        this.onCanvasClick((event) => {
-            const cell = getCellFromCoords(this.coord.x, this.coord.y, this.tileSize)
-            const tile = this.getActiveLayer().getTileFromCell(cell[0], cell[1])
-            
-            const activeTilesheet = this.getActiveTilesheet()
-            if (tile.image.src !== activeTilesheet.image.src && 
-                tile.sheetCell !== activeTilesheet.activeCell.cell) {
-                    tile.image.src = activeTilesheet.image.src
-                    tile.sheetCell = activeTilesheet.activeCell.cell
-                    tile.draw(this.ctx, cell[0] * this.tileSize, cell[1] * this.tileSize)
-            }
+        this.onCanvasMouseDown((event) => {
+            this.mouseInterval = setInterval(() => {
+                const cell = getCellFromCoords(this.coord.x, this.coord.y, this.tileSize)
+                const tile = this.getActiveLayer().getTileFromCell(cell[0], cell[1])
+                
+                const activeTilesheet = this.getActiveTilesheet()
+                if (tile.image.src !== activeTilesheet.image.src || 
+                    tile.sheetCell !== activeTilesheet.activeCell.cell || !this.focused) {
+                        tile.image.src = activeTilesheet.image.src
+                        tile.sheetCell = activeTilesheet.activeCell.cell
+                        tile.draw(this.ctx, cell[0] * this.tileSize, cell[1] * this.tileSize)
+                }
+            }, 10)
+        })
 
+        this.onCanvasMouseUp((event) => {
+            clearInterval(this.mouseInterval)
         })
     }
 
