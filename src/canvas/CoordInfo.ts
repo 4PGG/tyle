@@ -11,6 +11,8 @@ export default class CoordInfo {
         this.x = 0
         this.y = 0
         this.cell = [0, 0]
+
+        this.init()
     }
 
     init() {

@@ -18,4 +18,10 @@ export default class Canvas {
             canvas: this
         })
     }
+
+    onCanvasClick(callback: (e) => void): void {
+        this.canvas.addEventListener('click', event => {
+            callback(event)
+        })
+    }
 }

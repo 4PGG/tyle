@@ -2,12 +2,14 @@ import type Map from '../map/Map'
 import DefaultTilesheet from '../assets/default-tilesheet32.png'
 import ActiveCell from './ActiveCell'
 import Canvas from '../canvas/Canvas'
+import { getCellFromCoords } from '../utils'
 
 export default class TileSheet extends Canvas {
     map: Map
 
     tileSize: any
     image: HTMLImageElement
+    active: boolean
     activeCell: ActiveCell
     isLoaded: boolean
 
@@ -28,6 +30,8 @@ export default class TileSheet extends Canvas {
             this.canvas.width = this.image.width
             this.canvas.height = this.image.height
         }
+
+        this.active = config.active || false
 
         this.tileSize = config.tileSize || 32
 
@@ -57,11 +61,18 @@ export default class TileSheet extends Canvas {
         step()
     }
 
-    registerDrawEvent(): void {
+    registerSelectTileEvent(): void {
+        this.onCanvasClick((event) => {
+            let cell = getCellFromCoords(this.coord.x, this.coord.y, this.tileSize)
+            this.activeCell.cell = cell
+            console.log(this.activeCell.cell)
+        })
     }
 
     init(): void {
         this.draw(this.ctx)
         this.drawLoop()
+
+        this.registerSelectTileEvent()
     }
 }

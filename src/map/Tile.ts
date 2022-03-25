@@ -23,7 +23,7 @@ export default class Tile {
         const tileSize = this.layer.map.tileSize
         
         this.isLoaded && ctx.drawImage(this.image,
-            this.sheetCell[0], this.sheetCell[1],
+            this.sheetCell[0] * tileSize, this.sheetCell[1] * tileSize,
             tileSize, tileSize,
             x, y,
             tileSize, tileSize,
