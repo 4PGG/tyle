@@ -157,12 +157,12 @@ export default class Map extends Canvas {
             // clear rect
             this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
 
-            // render grid
-            this.isGridShown && this.renderGrid()
-
             // get active layer & draw
             let activeLayer = this.getActiveLayer()
             activeLayer.draw()
+
+            // render grid
+            this.isGridShown && this.renderGrid()
 
             requestAnimationFrame(() => {
                 step()
