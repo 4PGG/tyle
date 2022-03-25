@@ -1,12 +1,12 @@
 import { getCellFromCoords } from "../utils"
 import KeyPressListener from "../listeners/KeyPressListener"
+import Canvas from "../canvas/Canvas"
 import Layer from "./Layer"
-import MapCoordInfo from "./MapCoordInfo"
-import MapRenderInfo from "./MapRenderInfo"
+import TileSheet from "../sheet/TileSheet"
 
 import Event from '../assets/Event.png'
 
-export default class Map {
+export default class Map extends Canvas {
     // ID of the map, can be used if we want map tabs
     id: number
 
@@ -19,20 +19,8 @@ export default class Map {
     // Element the map is attached to
     element: any
 
-    // Map canvas within the element
-    canvas: any
-
-    // 2d context of the canvas
-    ctx: any
-
     // Focused state, certain listeners will only listen if we're focused on the element
     focused: boolean
-
-    // Map Render Info
-    renderInfo: MapRenderInfo
-
-    // Map coord info
-    coordInfo: MapCoordInfo
 
     // last clicked check
     lastClicked: boolean
@@ -43,24 +31,27 @@ export default class Map {
     // show grid toggle
     isGridShown: boolean
 
+    // tilesheets
+    tilesheets: TileSheet
+
     constructor(config) {
+        super(config)
+
         this.id = 1 // TODO
         this.element = config.element
-        this.canvas = this.element.querySelector(".map-canvas")
-        this.ctx = this.canvas.getContext("2d")
+
+        // Canvas Config
+        this.canvas = document.querySelector('.map-canvas')
+        this.render.top = 5;
+        this.render.left = 30;
+
         this.tileSize = config.tileSize || 32
         this.rows = config.rows || 10
         this.focused = true
-        this.renderInfo = new MapRenderInfo({ 
-            map: this,
-            top: 5,
-            left: 30,
-        })
-        this.coordInfo = new MapCoordInfo({
-            map: this
-        })
+
 
         this.layers = config.layers || []
+        this.tilesheets = config.tilesheets || []
 
         this.isGridShown = true
 
@@ -101,16 +92,16 @@ export default class Map {
 
     registerGridMovement(): void {
         new KeyPressListener("KeyW", () => {
-            this.focused && this.renderInfo.decreaseTop()
+            this.focused && this.render.decreaseTop()
         })
         new KeyPressListener("KeyA", () => {
-            this.focused && this.renderInfo.decreaseLeft()
+            this.focused && this.render.decreaseLeft()
         })
         new KeyPressListener("KeyS", () => {
-            this.focused && this.renderInfo.increaseTop()
+            this.focused && this.render.increaseTop()
         })
         new KeyPressListener("KeyD", () => {
-            this.focused && this.renderInfo.increaseLeft()
+            this.focused && this.render.increaseLeft()
         })
     }
 
@@ -126,7 +117,7 @@ export default class Map {
 
     registerDrawEvent(): void {
         this.canvas.addEventListener('click', event => {
-            let cell = getCellFromCoords(this.coordInfo.x, this.coordInfo.y, this.tileSize)
+            let cell = getCellFromCoords(this.coord.x, this.coord.y, this.tileSize)
             const tile = this.getActiveLayer().getTileFromCell(cell[0], cell[1])
             tile.image.src = Event
             tile.draw(this.ctx, cell[0] * this.tileSize, cell[1] * this.tileSize)
@@ -155,16 +146,21 @@ export default class Map {
 
     init() {
         // Grab render info then render grid
-        this.renderInfo.init()
+        this.render.init()
         this.renderGrid()
 
-        this.coordInfo.init()
+        this.coord.init()
 
         this.layers[0] = new Layer({
             map: this,
             active: true,
         })
-        
+
+        this.tilesheets[0] = new TileSheet({
+            map: this,
+            canvas: document.querySelector(".tilesheet-canvas"),
+            tileSize: this.tileSize
+        })        
 
         this.drawLoop()
 

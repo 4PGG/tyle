@@ -82,7 +82,16 @@ p {
 
 .map-container canvas {
     image-rendering: pixelated;
-  }
+}
+
+.tilesheet-container {
+    max-height: 400px;
+    overflow: hidden;
+}
+
+.tilesheet-container canvas {
+    image-rendering: pixelated;
+}
 
 .fa-btn {
     background: none;
